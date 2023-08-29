@@ -1,0 +1,15 @@
+/* src/GMAIL/GmailInbox.css */
+.inbox-container {
+  padding-top: 20px;
+}
+
+.sidebar {
+  background-color: #f4f4f4;
+  min-height: 100vh;
+}
+
+.inbox {
+  padding: 20px;
+}
+
+/* Add more styles as needed */
