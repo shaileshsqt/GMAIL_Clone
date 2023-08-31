@@ -17,12 +17,12 @@ const AuthFn = () => {
   const [getMessage, setgetmessage] = useState([]);
   const [errorMessage, setErrorMessage] = useState("");
 
-  const CLIENT_ID =
-    "1064787533834-btg90n76s1plli7kerq74rjp6ke9bek5.apps.googleusercontent.com";
-  const API_KEY = "AIzaSyCDjnNJT_9k4o7FuLBM6cjNyob01P2T1u4";
-  const DISCOVERY_DOC =
-    "https://www.googleapis.com/discovery/v1/apis/gmail/v1/rest";
-  const SCOPES = "https://www.googleapis.com/auth/gmail.readonly";
+  const CLIENT_ID = process.env.CLIENT_ID;
+
+  const API_KEY = process.env.API_KEY;
+  const DISCOVERY_DOC = process.env.DISCOVERY_DOC;
+
+  const SCOPES = process.env.SCOPES;
 
   useEffect(() => {
     const script1 = document.createElement("script");
