@@ -11,15 +11,20 @@ import "./GmailInbox.css";
 import moment from "moment";
 import { Link } from "react-router-dom";
 
-const Display = ({ ThreadList, labels, errorMessage, getMessage }) => {
-  const [first, setfirst] = useState([]);
+const Display = () => {
+  const [Data, setData] = useState([]);
   const [getData, setgetData] = useState([]);
+  const [labels, setLabels] = useState([]);
+  const [Threds, setThreds] = useState([]);
+  const [getMessage, setgetmessage] = useState([]);
+  const [errorMessage, setErrorMessage] = useState("");
+  const [labelId, setLabelId] = useState("");
+  console.log("labelId::", labelId);
   // const [errorMessage, setErrorMessage] = useState("");
   let result = [];
 
   useEffect(() => {
     getMessage.forEach((el1) => {
-      console.log("el1 ::", el1);
       const fromvalue = el1.payload.headers.find(
         (item) => item.name === "From"
       );
@@ -36,9 +41,65 @@ const Display = ({ ThreadList, labels, errorMessage, getMessage }) => {
         subject: subjectvalue.value,
         date: datevalue.value,
       });
-      setfirst([...first, result]);
+      setData([...Data, result]);
     });
   }, [getMessage]);
+
+  const listLabels = async () => {
+    try {
+      const response = await window.gapi.client.gmail.users.labels.list({
+        userId: "me",
+      });
+      const labels = response.result.labels || [];
+      console.log("labels::", labels);
+      setLabels(labels);
+      setErrorMessage("");
+    } catch (err) {
+      setErrorMessage(err.message);
+    }
+  };
+  const listThreads = async () => {
+    try {
+      const response = await window.gapi.client.gmail.users.threads.list({
+        userId: "me",
+        labelIds: labelId,
+      });
+      debugger;
+      await getmessageArray(response.result.threads);
+      const threads = response.result || [];
+      setThreds(threads);
+      setErrorMessage("");
+    } catch (err) {
+      setErrorMessage(err.message);
+    }
+  };
+
+  const getmessageArray = async (item) => {
+    console.log("get Message Array::::::", item);
+    // setgetmessage();
+    item.forEach(async (element) => {
+      try {
+        const response = await window.gapi.client.gmail.users.threads.get({
+          userId: "me",
+          id: element.id,
+        });
+        setgetmessage(response.result.messages);
+        // console.log("get message List @!@!@!@!@!@", response);
+      } catch (error) {
+        setErrorMessage(error.message);
+      }
+    });
+  };
+
+  useEffect(() => {
+    listLabels();
+    // listThreads();
+    // GetHeader();
+  }, []);
+
+  useEffect(() => {
+    listThreads();
+  }, [labelId]);
 
   return (
     <>
@@ -46,7 +107,16 @@ const Display = ({ ThreadList, labels, errorMessage, getMessage }) => {
         <Row>
           <Col sm={2} className="sidebar">
             <pre className="labels" style={{ whiteSpace: "pre-wrap" }}>
-              {errorMessage || labels.map((label) => label.name).join("\n")}
+              {/* {errorMessage || labels.map((label) => label.name).join("\n")} */}
+              {labels?.map((item) => (
+                <button
+                  onClick={() => {
+                    setLabelId(item?.id);
+                  }}
+                >
+                  {item?.name}
+                </button>
+              ))}
             </pre>
           </Col>
           <Col sm={10} className="inbox">
@@ -58,10 +128,10 @@ const Display = ({ ThreadList, labels, errorMessage, getMessage }) => {
                   <th>Date</th>
                 </thead>
                 <tbody>
-                  {first !== undefined &&
-                    first !== null &&
-                    first.length &&
-                    first.map((itm) => {
+                  {Data !== undefined &&
+                    Data !== null &&
+                    Data.length &&
+                    Data.map((itm) => {
                       return (
                         <tr>
                           <Link
@@ -73,7 +143,7 @@ const Display = ({ ThreadList, labels, errorMessage, getMessage }) => {
                             <td>{itm[0].from}</td>{" "}
                           </Link>
                           <td>{itm[0].subject}</td>
-                          {/* <td>{itm[0].date}</td> */}
+
                           <td>{moment(itm[0].date).format("DD-MM")}</td>
                         </tr>
                       );

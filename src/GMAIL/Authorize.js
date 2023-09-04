@@ -7,6 +7,7 @@ import {
 } from "./gmailList";
 import Display from "./Display";
 import Gmail_Body from "./Gmail_Body";
+import { useNavigate } from "react-router-dom";
 
 const AuthFn = () => {
   const [tokenClient, setTokenClient] = useState(null);
@@ -16,13 +17,15 @@ const AuthFn = () => {
   const [Threds, setThreds] = useState([]);
   const [getMessage, setgetmessage] = useState([]);
   const [errorMessage, setErrorMessage] = useState("");
+  const navigate = useNavigate();
 
-  const CLIENT_ID = process.env.CLIENT_ID;
+  const CLIENT_ID = process.env.REACT_APP_CLIENTID;
 
-  const API_KEY = process.env.API_KEY;
-  const DISCOVERY_DOC = process.env.DISCOVERY_DOC;
+  const API_KEY = process.env.REACT_APP_APIKEY;
 
-  const SCOPES = process.env.SCOPES;
+  const DISCOVERY_DOC = process.env.REACT_APP_DISCOVERYDOC;
+
+  const SCOPES = process.env.REACT_APP_SCOPES;
 
   useEffect(() => {
     const script1 = document.createElement("script");
@@ -60,7 +63,9 @@ const AuthFn = () => {
       scope: SCOPES,
       callback: handleTokenResponse,
     });
+
     setTokenClient(newTokenClient);
+    localStorage.setItem("Token", JSON.stringify(newTokenClient));
     setGisInited(true);
     maybeEnableButtons();
   };
@@ -72,12 +77,15 @@ const AuthFn = () => {
   };
 
   const handleTokenResponse = async (resp) => {
-    localStorage.setItem("Token", JSON.stringify(resp));
+    console.log("Respo", resp);
+    localStorage.setItem("accesToken", resp.access_token);
+
     if (resp.error !== undefined) {
       throw resp;
     }
-    await listLabels();
-    await listThreads();
+    navigate("/Display");
+    // await listLabels();
+    // await listThreads();
   };
 
   const listLabels = async () => {
@@ -97,7 +105,6 @@ const AuthFn = () => {
       const response = await window.gapi.client.gmail.users.threads.list({
         userId: "me",
       });
-      console.log("Thread List", response);
 
       await getmessageArray(response.result.threads);
       const threads = response.result || [];
@@ -156,13 +163,13 @@ const AuthFn = () => {
         </button>
         <button onClick={() => listThreads()}>threads</button>
 
-        <Display
-          ThreadList={Threds}
-          labels={labels}
-          getMessage={getMessage}
-          errorMessage={errorMessage}
-        />
-        <Gmail_Body labels={labels} errorMessage={errorMessage} />
+          {/* <Display
+            ThreadList={Threds}
+            labels={labels}
+            getMessage={getMessage}
+            errorMessage={errorMessage}
+          /> */}
+        {/* <Gmail_Body labels={labels} errorMessage={errorMessage} /> */}
         {/* <Labels labels={labels} errorMessage={errorMessage} /> */}
       </div>
     </div>

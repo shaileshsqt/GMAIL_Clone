@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
-import { Col, Container, ListGroup, Row, Table } from "react-bootstrap";
-import { useParams } from "react-router-dom";
+import { Button, Col, Container, ListGroup, Row, Table } from "react-bootstrap";
+import { useNavigate, useParams } from "react-router-dom";
 
 const Gmail_Body = () => {
   const [first, setfirst] = useState([]);
@@ -9,9 +9,10 @@ const Gmail_Body = () => {
   const [errorMessage, setErrorMessage] = useState("");
   const [List, setList] = useState([]);
   let result = [];
+  let Display = [];
   let Decode = "";
   let param = useParams();
-  console.log("param ::", param);
+  const navigate = useNavigate();
 
   const fetchData = async () => {
     try {
@@ -19,9 +20,8 @@ const Gmail_Body = () => {
         userId: "me",
         id: param.id,
       });
-      // setgetmessage(response.result.messages);
+
       setgetData(response.result.messages);
-      // console.log("get message List @!@!@!@!@!@", response);
     } catch (error) {
       setErrorMessage(error.message);
     }
@@ -38,113 +38,144 @@ const Gmail_Body = () => {
       setErrorMessage(err.message);
     }
   };
+  console.log("get Data Main", getData);
 
-  //   const GetHeader = () => {
-  //     //   getData.forEach((el1) => {
-  //     //     console.log("Loop Body ::", el1);
-  //     //     const fromvalue = el1.payload.headers.find(
-  //     //       (item) => item.name === "From"
-  //     //     );
-  //     //     const fetchId = el1.id;
-  //     //     const subjectvalue = el1.payload.headers.find(
-  //     //       (item) => item.name === "Subject"
-  //     //     );
-  //     //     const datevalue = el1.payload.headers.find(
-  //     //       (item) => item.name === "Date"
-  //     //     );
-  //     //     result.push({
-  //     //       id: fetchId,
-  //     //       from: fromvalue.value,
-  //     //       subject: subjectvalue.value,
-  //     //       date: datevalue.value,
-  //     //     });
-  //     //     setList([...List, result]);
-  //     //   });
-  //   };
   useEffect(() => {
+    debugger;
     for (let index = 0; index < getData.length; index++) {
-      const el1 = getData[index];
-      console.log("Loop Body ::", el1);
-      const fromvalue = el1.payload.headers.find(
-        (item) => item.name === "From"
-      );
-      const fetchId = el1.id;
-      const subjectvalue = el1.payload.headers.find(
-        (item) => item.name === "Subject"
-      );
-      const datevalue = el1.payload.headers.find(
-        (item) => item.name === "Date"
-      );
+      const el1 = getData;
+      for (let i = 0; i < el1.length; i++) {
+        const fromvalue = el1[i].payload.headers.find(
+          (item) => item.name === "From"
+        );
+        const fetchId = el1[i].id;
+        const subjectvalue = el1[i].payload.headers.find(
+          (item) => item.name === "Subject"
+        );
+        const datevalue = el1[i].payload.headers.find(
+          (item) => item.name === "Date"
+        );
 
-      const To = el1.payload.headers.find((item) => item.name === "To");
-      const getBody = el1?.payload?.parts;
+        const To = el1[i].payload.headers.find((item) => item.name === "To");
+        const getBody = el1[i]?.payload;
 
-      result.push({
-        id: fetchId,
-        from: fromvalue.value,
-        to: To.value,
-        subject: subjectvalue.value,
-        date: datevalue.value,
-        body: getBody,
-      });
+        result.push({
+          id: fetchId,
+          from: fromvalue.value,
+          to: To.value,
+          subject: subjectvalue.value,
+          date: datevalue.value,
+          getBody: getBody,
+        });
+      }
     }
+    debugger;
     setList([result]);
-  }, [getData]);
+  }, [getData.length > 0]);
 
   useEffect(() => {
     fetchData();
     listLabels();
     // GetHeader();
   }, []);
-  console.log("Get Data::", getData);
+
   console.log("List::::::::::::::::", List);
 
   const getDatafn = (item) => {
-    console.log("Item", item);
-    const base64 = item[1].body.data.replaceAll("-", "+");
-    // const ooo4 = item?.map((item, index) => item);
-    console.log("clg", base64);
+    // console.log("Get Item Call", item);
+    const base64 = item.replaceAll("-", "+").replaceAll("_", "+");
     Decode = atob(base64);
-    console.log("Decode Data", Decode);
+    // console.log("Decode Data", Decode);
     return Decode;
   };
 
-  //   const base64 = List.map((item, index) => item[index]?.body[1].body.data);
-
-  //   let res = () => {
-  //     let data =
-  //       base64[0] !== undefined &&
-  //       base64[0] !== null &&
-  //       base64[0].length !== 0 &&
-  //       base64[0]?.replaceAll("-", "+");
-  //     console.log("Response", data);
-
-  //     Decode = atob(data);
-  //     return Decode;
-  //   };
-  //   console.log("Resposne", res());
-
-  //   var str = atob("" + base64[0] + "");
-  //   var part = message.parts.filter(function (part) {
-  //     return part.mimeType == "text/html";
-  //   });
-  //   var html = urlSafeBase64Decode(base64);
-  // const get11 = base64.decode(base64[0].replace(/-/g, "+").replace(/_/g, "/"));
-  //   let body = Utilities.base64Decode(base64[0]);
-  //  const decodedHtml = base64url.decode(base64[0], "utf-8");
-  //   console.log("base64", base64[0]);
-  //   const encoded = btoa(base64[0]);
-  //   //   var decodedHTML = window.atob(base64[0]);
-  //   const decoded = atob("" + base64[0] + "");
-
-  //   const decodedData = btoa(
-  //     "PCFET0NUWVBFIGh0bWw-PGh0bWw-PHN0eWxlPnB7bWFyZ2luLXRvcDowcHg7IG1hcmdpbi1ib3R0b206MHB4O308L3N0eWxlPjxib2R5IGJnY29sb3I9IiNGRkZGRkYiIG1hcmdpbndpZHRoPSIyIiBtYXJnaW5oZWlnaHQ9IjIiIHN0eWxlPSJmb250LWZhbWlseTpBcmlhbDtmb250LXNpemU6MTBwdDtjb2xvcjowMDAwMDAiPjxodG1sPjxib2R5PjxzcGFuIHN0eWxlPSJmb250LXZhcmlhbnQtbGlnYXR1cmVzOiBub25lOyB3aGl0ZS1zcGFjZS1jb2xsYXBzZTogcHJlc2VydmU7Ij5IZWxsbyBTaGFpbGVzaCw8L3NwYW4-PGJyIGNsZWFyPSJub25lIiBzdHlsZT0iYm94LXNpemluZzogYm9yZGVyLWJveDsgcG9pbnRlci1ldmVudHM6IGFsbDsgZm9udC12YXJpYW50LWxpZ2F0dXJlczogbm9uZTsgd2hpdGUtc3BhY2UtY29sbGFwc2U6IHByZXNlcnZlOyI-PGJyIGNsZWFyPSJub25lIiBzdHlsZT0iYm94LXNpemluZzogYm9yZGVyLWJveDsgcG9pbnRlci1ldmVudHM6IGFsbDsgZm9udC12YXJpYW50LWxpZ2F0dXJlczogbm9uZTsgd2hpdGUtc3BhY2UtY29sbGFwc2U6IHByZXNlcnZlOyI-PHNwYW4gc3R5bGU9ImZvbnQtdmFyaWFudC1saWdhdHVyZXM6IG5vbmU7IHdoaXRlLXNwYWNlLWNvbGxhcHNlOiBwcmVzZXJ2ZTsiPkp1c3QgYSBmb2xsb3ctdXAgb24gdGhpcyBjYXNlLjwvc3Bhbj48YnIgY2xlYXI9Im5vbmUiIHN0eWxlPSJib3gtc2l6aW5nOiBib3JkZXItYm94OyBwb2ludGVyLWV2ZW50czogYWxsOyBmb250LXZhcmlhbnQtbGlnYXR1cmVzOiBub25lOyB3aGl0ZS1zcGFjZS1jb2xsYXBzZTogcHJlc2VydmU7Ij48c3BhbiBzdHlsZT0iZm9udC12YXJpYW50LWxpZ2F0dXJlczogbm9uZTsgd2hpdGUtc3BhY2UtY29sbGFwc2U6IHByZXNlcnZlOyI-UGxlYXNlIGJlIGFkdmlzZWQgdGhhdCB3ZSB3aWxsIGJlIGNsb3NpbmcgdGhpcyBjYXNlIGR1ZSB0byBpbmFjdGl2aXR5IGlmIHdlIGRvbiYjMzk7dCByZWNlaXZlIGFueSByZXNwb25zZSB3aXRoaW4gdGhlIGRheS48L3NwYW4-PGJyIGNsZWFyPSJub25lIiBzdHlsZT0iYm94LXNpemluZzogYm9yZGVyLWJveDsgcG9pbnRlci1ldmVudHM6IGFsbDsgZm9udC12YXJpYW50LWxpZ2F0dXJlczogbm9uZTsgd2hpdGUtc3BhY2UtY29sbGFwc2U6IHByZXNlcnZlOyI-PGJyIGNsZWFyPSJub25lIiBzdHlsZT0iYm94LXNpemluZzogYm9yZGVyLWJveDsgcG9pbnRlci1ldmVudHM6IGFsbDsgZm9udC12YXJpYW50LWxpZ2F0dXJlczogbm9uZTsgd2hpdGUtc3BhY2UtY29sbGFwc2U6IHByZXNlcnZlOyI-PHNwYW4gc3R5bGU9ImZvbnQtdmFyaWFudC1saWdhdHVyZXM6IG5vbmU7IHdoaXRlLXNwYWNlLWNvbGxhcHNlOiBwcmVzZXJ2ZTsiPlRoYW5rIHlvdSw8L3NwYW4-PGJyIGNsZWFyPSJub25lIiBzdHlsZT0iYm94LXNpemluZzogYm9yZGVyLWJveDsgcG9pbnRlci1ldmVudHM6IGFsbDsgZm9udC12YXJpYW50LWxpZ2F0dXJlczogbm9uZTsgd2hpdGUtc3BhY2UtY29sbGFwc2U6IHByZXNlcnZlOyI-PGJyIGNsZWFyPSJub25lIiBzdHlsZT0iYm94LXNpemluZzogYm9yZGVyLWJveDsgcG9pbnRlci1ldmVudHM6IGFsbDsgZm9udC12YXJpYW50LWxpZ2F0dXJlczogbm9uZTsgd2hpdGUtc3BhY2UtY29sbGFwc2U6IHByZXNlcnZlOyI-PHNwYW4gc3R5bGU9ImZvbnQtdmFyaWFudC1saWdhdHVyZXM6IG5vbmU7IHdoaXRlLXNwYWNlLWNvbGxhcHNlOiBwcmVzZXJ2ZTsiPlJpbmdDZW50cmFsIERldmVsb3BlciBTdXBwb3J0PC9zcGFuPjwvYm9keT48L2h0bWw-PGJyPjxicj48aW1nIHNyYz0iaHR0cHM6Ly9yYy5teS5zYWxlc2ZvcmNlLmNvbS9zZXJ2bGV0L3NlcnZsZXQuSW1hZ2VTZXJ2ZXI_b2lkPTAwRDgwMDAwMDAwYVJVWCZlc2lkPTAxOEhyMDAwMDFBeG5FSSZmcm9tPWV4dCI-PC9ib2R5PjwvaHRtbD48YnI-PGJyPnJlZjpfMDBEODBhUlVYLl81MDBIcjFYZGZqcTpyZWY="
-  //   )
-  //     .replace(/-/g, "+")
-  //     .replace(/_/g, "/");
-  //   console.log("decodedHTML", decodedData);
-
-  //   var decodedHTML = window.atob(decodedData);
+  const renderPart = (part) => {
+    // console.log("Part Loop", part);
+    if (part?.mimeType === "text/plain") {
+      return (
+        <div className="pt-2 ms-2" key={part.partId}>
+          {Display.push(getDatafn(part.body.data))}
+        </div>
+      );
+    } else if (part?.mimeType === "text/html") {
+      Display.push(getDatafn(part.body.data));
+    } else if (
+      part?.mimeType === "multipart/alternative" ||
+      part?.mimeType === "multipart/mixed" ||
+      part?.mimeType === "multipart/related"
+    ) {
+      return CheckParts(part.parts);
+      // part?.parts &&
+      //   part?.parts.map((partitem, index) => {
+      //     return (
+      //       <div
+      //         key={index}
+      //         dangerouslySetInnerHTML={{
+      //           __html: getDatafn(partitem.body.data),
+      //         }}
+      //       ></div>
+      //     );
+      //   });
+    } else {
+      return (
+        <div key={part?.partId}>
+          <p>MIME Type: {part?.mimeType}</p>
+          <p>Attachment Name: {part?.filename}</p>
+        </div>
+      );
+    }
+  };
+  let myData = [];
+  const CheckParts = (part) => {
+    part?.map((itm, index) => {
+      console.log("Check Part loop Data::", itm);
+      if (
+        itm?.mimeType === "multipart/alternative" ||
+        itm?.mimeType === "multipart/mixed" ||
+        itm?.mimeType === "multipart/related"
+      ) {
+        itm?.parts &&
+          itm?.parts.map((partitem, index) => {
+            {
+              Display.push(getDatafn(partitem.body.data));
+            }
+          });
+      } else if (itm?.mimeType === "text/plain") {
+        return (
+          <div className="pt-2 ms-2" key={itm.partId}>
+            {Display.push(
+              getDatafn(
+                itm.body.attachmentId ? itm.body.attachmentId : itm.body.data
+              )
+            )}
+          </div>
+        );
+      } else if (itm?.mimeType === "text/html") {
+        {
+          Display.push(
+            getDatafn(
+              itm.body.attachmentId ? itm.body.attachmentId : itm.body.data
+            )
+          );
+        }
+      } else if (itm?.mimeType === "application/pdf") {
+        {
+          Display.push(getDatafn(itm.body.attachmentId && itm?.filename));
+        }
+      } else if (itm?.mimeType === "image/jpeg") {
+        {
+          Display.push(getDatafn(itm.body.attachmentId && itm?.filename));
+        }
+      } else {
+        return (
+          <div key={itm?.partId}>
+            <p>No Data MAtch</p>
+          </div>
+        );
+      }
+    });
+  };
+  console.log("Display Data ::::::::::::::::::::", Display);
 
   return (
     <div>
@@ -161,40 +192,151 @@ const Gmail_Body = () => {
               {List !== undefined &&
                 List !== null &&
                 List.length &&
-                List.map((itm, index) => {
+                List[0].map((itm, index) => {
                   debugger;
                   return (
                     <div key={index}>
+                      <p onClick={() => navigate("/Display")}>Back</p>
                       <header>
-                        Subject: <h4>{itm[index]?.subject} </h4>
+                        Subject: <h4>{itm?.subject} </h4>
                       </header>
                       <div className="ms-1 pt-2 mb-5">
-                        From :<div>{itm[index]?.from}</div>
+                        From :<div>{itm?.from}</div>
                       </div>
-                      <div className="pt-2 ms-2">Mail Body</div>
                       <div className="pt-2 ms-2">
-                        {itm[index]?.body && (
-                          <div
-                            className="pt-2 ms-2"
-                            dangerouslySetInnerHTML={{
-                              __html: getDatafn(itm[index]?.body),
-                            }}
-                          />
-                        )}
-                        {/* {itm[index] &&
-                          itm[index]?.body?.body[1] !== undefined &&
-                          atob(
-                            itm[index]?.body?.body[1].data.replaceAll("-", "+")
-                          )} */}
-                        {/* {Base64.decode(base64[0])} */}
-                        {/* {window.atob(base64[0])} */}
+                        Mail Body
+                        <div>
+                          {itm?.getBody?.parts !== 0 &&
+                          itm?.getBody?.parts !== undefined ? (
+                            itm?.getBody?.parts?.map((itm) =>
+                              itm.mimeType === "text/html" ? (
+                                <div
+                                  key={index}
+                                  dangerouslySetInnerHTML={{
+                                    __html: atob(
+                                      itm.body.data
+                                        .replaceAll("-", "+")
+                                        .replaceAll("_", "+")
+                                    ),
+                                  }}
+                                >
+                                  {/* {itm.body.data} */}
+                                </div>
+                              ) : itm?.mimeType === "multipart/alternative" ||
+                                itm?.mimeType === "multipart/mixed" ||
+                                itm?.mimeType === "multipart/related" ? (
+                                itm.parts.map((prtItem, index) =>
+                                  prtItem.mimeType === "text/html" ? (
+                                    <div
+                                      key={index}
+                                      dangerouslySetInnerHTML={{
+                                        __html: atob(
+                                          prtItem.body.data
+                                            .replaceAll("-", "+")
+                                            .replaceAll("_", "+")
+                                        ),
+                                      }}
+                                    >
+                                      {/* {itm.body.data} */}
+                                    </div>
+                                  ) : prtItem.mimeType === "text/plain" ? (
+                                    <div
+                                      key={index}
+                                      dangerouslySetInnerHTML={{
+                                        __html: atob(
+                                          prtItem.body.data
+                                            .replaceAll("-", "+")
+                                            .replaceAll("_", "+")
+                                        ),
+                                      }}
+                                    >
+                                      {/* {itm.body.data} */}
+                                    </div>
+                                  ) : prtItem?.mimeType ===
+                                      "multipart/alternative" ||
+                                    prtItem?.mimeType === "multipart/mixed" ||
+                                    prtItem?.mimeType ===
+                                      "multipart/related" ? (
+                                    prtItem.parts.map((lstParts) =>
+                                      lstParts.mimeType === "text/html" ? (
+                                        <div
+                                          key={index}
+                                          dangerouslySetInnerHTML={{
+                                            __html: atob(
+                                              lstParts.body.data
+                                                .replaceAll("-", "+")
+                                                .replaceAll("_", "+")
+                                            ),
+                                          }}
+                                        >
+                                          {/* {itm.body.data} */}
+                                        </div>
+                                      ) : (
+                                        lstParts.mimeType ===
+                                        "text/plain"(
+                                          <div
+                                            key={index}
+                                            dangerouslySetInnerHTML={{
+                                              __html: atob(
+                                                lstParts.body.data
+                                                  .replaceAll("-", "+")
+                                                  .replaceAll("_", "+")
+                                              ),
+                                            }}
+                                          >
+                                            {/* {itm.body.data} */}
+                                          </div>
+                                        )
+                                      )
+                                    )
+                                  ) : (
+                                    ""
+                                  )
+                                )
+                              ) : itm?.mimeType === "image/jpeg" ? (
+                                <div
+                                  key={index}
+                                  dangerouslySetInnerHTML={{
+                                    __html: atob(
+                                      itm.body.attachmentId
+                                        .replaceAll("-", "+")
+                                        .replaceAll("_", "+")
+                                    ),
+                                  }}
+                                />
+                              ) : itm?.mimeType === "application/pdf" ? (
+                                <div>{itm?.filename}</div>
+                              ) : (
+                                " "
+                              )
+                            )
+                          ) : (
+                            <div
+                              key={index}
+                              dangerouslySetInnerHTML={{
+                                __html: atob(
+                                  itm.getBody.body.data
+                                    .replaceAll("-", "+")
+                                    .replaceAll("_", "+")
+                                ),
+                              }}
+                            >
+                              {/* {itm.body.data} */}
+                            </div>
+                          )}
+                        </div>
+                        {/* <div>
+                          {Display.length &&
+                            Display.map((itm, index) => (
+                              <div
+                                key={index}
+                                dangerouslySetInnerHTML={{
+                                  __html: itm,
+                                }}
+                              ></div>
+                            ))}
+                        </div> */}
                       </div>
-                      {/* <div
-                        className="pt-2 ms-2"
-                        dangerouslySetInnerHTML={{
-                          __html: decod,
-                        }}
-                      /> */}
                     </div>
                   );
                 })}

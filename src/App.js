@@ -9,6 +9,7 @@ import Home from "./GMAIL/Home";
 import Authorize from "./GMAIL/Authorize";
 import AuthFn from "./GMAIL/Authorize";
 import Gmail_Body from "./GMAIL/Gmail_Body";
+import Display from "./GMAIL/Display";
 
 const clientId =
   "1064787533834-btg90n76s1plli7kerq74rjp6ke9bek5.apps.googleusercontent.com";
@@ -34,6 +35,7 @@ const App = () => {
         <Route element={<Test />} path="/" /> */}
         <Route path="/Home" element={<Home />} />
         <Route path="/" element={<AuthFn />} />
+        <Route path="/Display" element={<Display />} />
         <Route path="/getBody/:id" element={<Gmail_Body />} />
       </Routes>
     </div>
