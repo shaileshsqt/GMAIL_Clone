@@ -161,7 +161,7 @@ const AuthFn = () => {
         <button id="signout_button" onClick={() => handleSignoutClick()}>
           SignOut
         </button>
-        <button onClick={() => listThreads()}>threads</button>
+        {/* <button onClick={() => listThreads()}>threads</button> */}
 
           {/* <Display
             ThreadList={Threds}

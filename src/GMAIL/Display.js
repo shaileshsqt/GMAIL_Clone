@@ -19,8 +19,7 @@ const Display = () => {
   const [getMessage, setgetmessage] = useState([]);
   const [errorMessage, setErrorMessage] = useState("");
   const [labelId, setLabelId] = useState("");
-  console.log("labelId::", labelId);
-  // const [errorMessage, setErrorMessage] = useState("");
+
   let result = [];
 
   useEffect(() => {
@@ -51,7 +50,7 @@ const Display = () => {
         userId: "me",
       });
       const labels = response.result.labels || [];
-      console.log("labels::", labels);
+
       setLabels(labels);
       setErrorMessage("");
     } catch (err) {
@@ -62,9 +61,9 @@ const Display = () => {
     try {
       const response = await window.gapi.client.gmail.users.threads.list({
         userId: "me",
-        labelIds: labelId,
+        labelIds: labelId === "" ? "INBOX" : labelId,
       });
-      debugger;
+
       await getmessageArray(response.result.threads);
       const threads = response.result || [];
       setThreds(threads);
@@ -75,7 +74,6 @@ const Display = () => {
   };
 
   const getmessageArray = async (item) => {
-    console.log("get Message Array::::::", item);
     // setgetmessage();
     item.forEach(async (element) => {
       try {
@@ -101,6 +99,14 @@ const Display = () => {
     listThreads();
   }, [labelId]);
 
+  // console.log(
+  //   "sortedData::",
+  //   Data.sort(function compare(a, b) {
+  //     var dateA = new Date(a[0].date);
+  //     var dateB = new Date(b[0].date);
+  //     return dateB - dateA;
+  //   })
+  // );
   return (
     <>
       <Container fluid className="inbox-container">
@@ -108,15 +114,17 @@ const Display = () => {
           <Col sm={2} className="sidebar">
             <pre className="labels" style={{ whiteSpace: "pre-wrap" }}>
               {/* {errorMessage || labels.map((label) => label.name).join("\n")} */}
-              {labels?.map((item) => (
-                <button
-                  onClick={() => {
-                    setLabelId(item?.id);
-                  }}
-                >
-                  {item?.name}
-                </button>
-              ))}
+              {errorMessage ||
+                labels?.map((item) => (
+                  <button
+                    onClick={() => {
+                      setLabelId(item?.id);
+                      setData("");
+                    }}
+                  >
+                    {item?.name}
+                  </button>
+                ))}
             </pre>
           </Col>
           <Col sm={10} className="inbox">
@@ -131,7 +139,11 @@ const Display = () => {
                   {Data !== undefined &&
                     Data !== null &&
                     Data.length &&
-                    Data.map((itm) => {
+                    Data.sort(function compare(a, b) {
+                      var dateA = new Date(a[0].date);
+                      var dateB = new Date(b[0].date);
+                      return dateB - dateA;
+                    })?.map((itm) => {
                       return (
                         <tr>
                           <Link
@@ -144,7 +156,13 @@ const Display = () => {
                           </Link>
                           <td>{itm[0].subject}</td>
 
-                          <td>{moment(itm[0].date).format("DD-MM")}</td>
+                          {/* <td>{moment(itm[0].date).format("DD-MM")}</td> */}
+                          <td>
+                            {moment(itm[0].date).format("DD-MM") ===
+                            moment(new Date()).format("DD-MM")
+                              ? moment(itm[0].date).format("LT")
+                              : moment(itm[0].date).format("DD-MM")}
+                          </td>
                         </tr>
                       );
                     })}
